@@ -1,0 +1,71 @@
+{
+  "app": {
+    "name": "ilmio"
+  },
+  "auth": {
+    "loginTitle": "Login",
+    "email": "Email",
+    "password": "Password",
+    "emailPlaceholder": "Enter email",
+    "passwordPlaceholder": "Enter password",
+    "loginButton": "Sign in",
+    "noAccount": "No account?",
+    "register": "Register",
+    "murziyaHello": "Hi! Let’s continue your journey 🐾",
+    "murziyaName": "Murziya"
+  },
+  "register": {
+    "sending": "Sending...",
+    "validation": {
+      "nicknameMin": "Minimum 3 characters",
+      "checking": "Checking...",
+      "nicknameTaken": "This nickname is taken 😿",
+      "nicknameFree": "Nickname is available ✅",
+      "emailInvalid": "Invalid email",
+      "emailTaken": "Email is already used 😿",
+      "emailFree": "Email is available ✅",
+      "checkError": "Check failed 😿",
+      "requiredFields": "Please fill all fields",
+      "usernameLatin": "Username must be latin/number (3-32)",
+      "emailLatin": "Email must be latin",
+      "passwordMin": "Password must be at least 6 characters",
+      "fixErrorsAbove": "Fix errors above",
+      "registerFailed": "Registration failed 😿"
+    },
+    "murziyaHello": "Hi! Let's sign you up 🙂",
+    "titleTop": "Join the adventure!",
+    "subtitle": "Let’s create your hero",
+    "nicknameLabel": "Create a nickname:",
+    "nicknamePlaceholder": "For example, murziya_king",
+    "emailLabel": "Your email:",
+    "emailPlaceholder": "Enter your email",
+    "passwordLabel": "Password:",
+    "passwordPlaceholder": "Create a password",
+    "languageLabel": "App language:",
+    "birthDateLabel": "Date of birth:",
+    "registerButton": "Sign up",
+    "stepText": "Step 1 of 5",
+    "backToLogin": "I already have an account"
+  },
+  "chooseLanguage": {
+    "bubbleTitle": "Hi! Let’s sign you up 🙂",
+    "bubbleName": "Murziya",
+    "title": "Choose language",
+    "continue": "Continue"
+  },
+  "verify": {
+    "title": "Verification",
+    "sentTo": "Code sent to:",
+    "timer": "Time left:",
+    "otpLabel": "Enter OTP code:",
+    "otpPlaceholder": "Enter code",
+    "confirm": "Confirm",
+    "checking": "Checking...",
+    "validation": {
+      "otpRequired": "Please enter OTP code",
+      "otpInvalid": "Invalid OTP format (digits only)",
+      "expired": "Time expired. Request a new code",
+      "verifyFailed": "Wrong code 😿"
+    }
+  }
+}
