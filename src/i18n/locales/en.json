@@ -12,7 +12,7 @@
     "noAccount": "No account?",
     "register": "Register",
     "murziyaHello": "Hi! Let’s continue your journey 🐾",
-    "murziyaName": "Murziya"
+    "murziyaName": "Muizza"
   },
   "register": {
     "sending": "Sending...",
@@ -36,7 +36,7 @@
     "titleTop": "Join the adventure!",
     "subtitle": "Let’s create your hero",
     "nicknameLabel": "Create a nickname:",
-    "nicknamePlaceholder": "For example, murziya_king",
+    "nicknamePlaceholder": "For example, muizza_king",
     "emailLabel": "Your email:",
     "emailPlaceholder": "Enter your email",
     "passwordLabel": "Password:",
@@ -49,7 +49,7 @@
   },
   "chooseLanguage": {
     "bubbleTitle": "Hi! Let’s sign you up 🙂",
-    "bubbleName": "Murziya",
+    "bubbleName": "Muizza",
     "title": "Choose language",
     "continue": "Continue"
   },
