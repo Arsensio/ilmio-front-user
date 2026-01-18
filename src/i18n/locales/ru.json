@@ -14,7 +14,7 @@
     "noAccount": "Нет аккаунта?",
     "register": "Регистрация",
     "murziyaHello": "Привет! Введи свой email. 🙂",
-    "murziyaName": "Мурзия"
+    "murziyaName": "Муизза"
   },
   "register": {
     "validation": {
@@ -51,7 +51,7 @@
   },
   "chooseLanguage": {
     "bubbleTitle": "Привет! Выбери язык 🙂",
-    "bubbleName": "Мурзия",
+    "bubbleName": "Муизза",
     "title": "Выбери язык",
     "continue": "Продолжить"
   },
