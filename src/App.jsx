@@ -1,11 +1,14 @@
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./AppRoutes";
+import ScrollLayout from "./layouts/ScrollLayout";
 
 export default function App() {
     return (
         <BrowserRouter>
-            <AppRoutes />
+            <ScrollLayout>
+                <AppRoutes />
+            </ScrollLayout>
         </BrowserRouter>
     );
 }

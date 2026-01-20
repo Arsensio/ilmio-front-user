@@ -3,6 +3,8 @@
     "name": "ilmio"
   },
   "auth": {
+    "loginError": "Wrong login or password 😿",
+    "loadingDots": "...",
     "loginTitle": "Login",
     "email": "Email",
     "password": "Password",
@@ -67,5 +69,13 @@
       "expired": "Time expired. Request a new code",
       "verifyFailed": "Wrong code 😿"
     }
+  },
+  "profile": {
+    "logout": "Logout"
+  },
+  "home": {
+    "loading": "Loading...",
+    "empty": "No lessons yet",
+    "lessonLabel": "Lesson {{number}}"
   }
 }

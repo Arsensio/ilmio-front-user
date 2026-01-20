@@ -5,7 +5,9 @@ import LoginMobile from "./pages/LoginMobile";
 import RegisterMobile from "./pages/RegisterMobile";
 import ChooseLanguage from "./pages/ChooseLanguage";
 import VerifyOtpMobile from "./pages/VerifyOtpMobile";
+
 import LanguageGate from "./routes/LanguageGate";
+import AuthGuard from "./routes/AuthGuard";
 
 import MobileLayout from "./layouts/MobileLayout";
 import HomeMobile from "./pages/app/HomeMobile";
@@ -18,7 +20,7 @@ export default function AppRoutes() {
             {/* choose language отдельно */}
             <Route path="/choose-language" element={<ChooseLanguage />} />
 
-            {/* auth */}
+            {/* ---------- AUTH ---------- */}
             <Route
                 path="/login"
                 element={
@@ -46,23 +48,29 @@ export default function AppRoutes() {
                 }
             />
 
-            {/* ✅ APP routes (после авторизации) */}
+            {/* ---------- APP (private) ---------- */}
             <Route
                 path="/app"
                 element={
-                    <LanguageGate>
-                        <MobileLayout />
-                    </LanguageGate>
+                    <AuthGuard>
+                        <LanguageGate>
+                            <MobileLayout />
+                        </LanguageGate>
+                    </AuthGuard>
                 }
             >
-                <Route index element={<Navigate to="/app/home" replace />} />
+                {/* ✅ default route /app -> /app/home */}
+                <Route index element={<Navigate to="home" replace />} />
+
                 <Route path="home" element={<HomeMobile />} />
                 <Route path="notes" element={<NotesMobile />} />
                 <Route path="profile" element={<ProfileMobile />} />
             </Route>
 
             {/* default */}
-            <Route path="/" element={<Navigate to="/register" replace />} />
+            <Route path="/" element={<Navigate to="/app" replace />} />
+
+            {/* fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
     );

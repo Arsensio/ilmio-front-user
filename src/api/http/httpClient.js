@@ -19,3 +19,19 @@ httpClient.interceptors.request.use((config) => {
 
     return config;
 });
+
+
+/* ===== RESPONSE ===== */
+httpClient.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        const status = error.response?.status;
+
+        if (status === 401 || status === 403) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+
+        return Promise.reject(error);
+    }
+);

@@ -1,8 +1,12 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import murziya from "../../assets/images/murziya.png";
 import { getUserLessons } from "../../api/user/lessonsApi";
+import { COLORS } from "../../theme/colors";
+import { getLessonCardUi } from "./homeLessonUi";
+
+/* ---------------- ICONS ---------------- */
 
 const HeartIcon = () => (
     <svg width="42" height="42" viewBox="0 0 48 48" fill="none">
@@ -41,18 +45,18 @@ const ShieldIcon = () => (
     </svg>
 );
 
-const LockIcon = () => (
-    <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+const LockIcon = ({ size = 30, stroke = "white" }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
         <path
             d="M7 10V8.5C7 6 9 4 11.5 4h1C15 4 17 6 17 8.5V10"
-            stroke="white"
+            stroke={stroke}
             strokeWidth="2"
             strokeLinecap="round"
             opacity="0.92"
         />
         <path
             d="M6.5 10h11c1 0 1.8.8 1.8 1.8v6.7c0 1-.8 1.8-1.8 1.8h-11c-1 0-1.8-.8-1.8-1.8v-6.7c0-1 .8-1.8 1.8-1.8Z"
-            stroke="white"
+            stroke={stroke}
             strokeWidth="2"
             strokeLinejoin="round"
             opacity="0.92"
@@ -63,12 +67,12 @@ const LockIcon = () => (
 const ArrowCircle = ({ locked }) => (
     <div className="w-[34px] h-[34px] rounded-full flex items-center justify-center bg-white/90">
         {locked ? (
-            <LockIcon />
+            <LockIcon size={22} stroke={COLORS.lockStroke} />
         ) : (
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <path
                     d="M10 7l5 5-5 5"
-                    stroke="#1A1A1A"
+                    stroke={COLORS.black}
                     strokeWidth="2.6"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -79,21 +83,10 @@ const ArrowCircle = ({ locked }) => (
     </div>
 );
 
-function getCardStyle(lessonStatus) {
-    if (lessonStatus === "ACTIVE") {
-        return {
-            wrap: "bg-gradient-to-b from-[#7FE02E] to-[#4EA61D]",
-            shadow:
-                "shadow-[0_18px_0_rgba(0,0,0,0.18),0_40px_70px_rgba(0,0,0,0.18)]",
-        };
-    }
-
-    // LOCKED
-    return {
-        wrap: "bg-gradient-to-b from-[#52B9F4] to-[#2E89C8]",
-        shadow:
-            "shadow-[0_18px_0_rgba(0,0,0,0.18),0_40px_70px_rgba(0,0,0,0.18)]",
-    };
+function getLessonIcon(category) {
+    if (category === "HARD_SKILL") return <ShieldIcon />;
+    if (category === "SOFT_SKILL") return <HeartIcon />;
+    return <HeartIcon />;
 }
 
 export default function HomeMobile() {
@@ -102,13 +95,18 @@ export default function HomeMobile() {
     const [lessons, setLessons] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const activeLessonRef = useRef(null);
+    const didScrollRef = useRef(false);
+
     useEffect(() => {
         (async () => {
             try {
                 setLoading(true);
+
                 const data = await getUserLessons();
                 const list = Array.isArray(data) ? data : [];
                 list.sort((a, b) => (a?.orderIndex ?? 0) - (b?.orderIndex ?? 0));
+
                 setLessons(list);
             } catch (e) {
                 console.error("Failed to load lessons", e);
@@ -119,16 +117,35 @@ export default function HomeMobile() {
         })();
     }, []);
 
-    const activeIndex = useMemo(() => {
-        const idx = lessons.findIndex((l) => l.lessonStatus === "ACTIVE");
-        return idx >= 0 ? idx + 1 : 1;
-    }, [lessons]);
+    // ✅ автоскролл к ACTIVE (в центр)
+    useEffect(() => {
+        if (loading) return;
+        if (didScrollRef.current) return;
 
-    const total = lessons.length || 0;
+        const hasActive = lessons.some((l) => l.lessonStatus === "ACTIVE");
+        if (!hasActive) return;
+
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                if (activeLessonRef.current) {
+                    activeLessonRef.current.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center",
+                        inline: "nearest",
+                    });
+                    didScrollRef.current = true;
+                }
+            });
+        });
+    }, [loading, lessons]);
 
     return (
-        <div className="min-h-screen w-full bg-gradient-to-b from-[#F7B338] via-[#F0A23B] to-[#E38D2F]">
-            {/* ⚠️ pb-32 важно чтобы список не залез под bottom menu */}
+        <div
+            className="min-h-screen w-full"
+            style={{
+                background: `linear-gradient(to bottom, ${COLORS.bg.orangeTop}, ${COLORS.bg.orangeMid}, ${COLORS.bg.orangeBottom})`,
+            }}
+        >
             <div className="max-w-[420px] mx-auto min-h-screen px-4 pt-6 pb-32 relative">
                 {/* CAT */}
                 <div className="mt-2 relative flex justify-center">
@@ -144,48 +161,53 @@ export default function HomeMobile() {
                     {loading ? (
                         <div className="rounded-[28px] bg-white/80 border border-white/70 shadow-[0_16px_40px_rgba(0,0,0,0.18)] p-6">
                             <div className="text-center font-black text-[#2F7CC8] text-[22px]">
-                                Loading...
+                                {t("home.loading")}
                             </div>
                         </div>
                     ) : lessons.length === 0 ? (
                         <div className="rounded-[28px] bg-white/80 border border-white/70 shadow-[0_16px_40px_rgba(0,0,0,0.18)] p-6">
                             <div className="text-center font-black text-[#2F7CC8] text-[22px]">
-                                No lessons
+                                {t("home.empty")}
                             </div>
                         </div>
                     ) : (
                         lessons.map((lesson) => {
-                            const ui = getCardStyle(lesson.lessonStatus);
-                            const locked = lesson.lessonStatus !== "ACTIVE";
-                            const isFirst = (lesson.orderIndex ?? 1) === 1;
+                            const ui = getLessonCardUi(lesson.lessonStatus);
+
+                            const locked = lesson.lessonStatus === "LOCKED";
+                            const isActive = lesson.lessonStatus === "ACTIVE";
 
                             return (
                                 <button
                                     key={lesson.id}
                                     type="button"
                                     disabled={locked}
+                                    ref={isActive ? activeLessonRef : null}
                                     className={[
                                         "w-full",
                                         "rounded-[30px]",
-                                        ui.wrap,
-                                        ui.shadow,
+                                        ui.shadowClass,
                                         "px-5 py-5",
                                         "text-left",
                                         "relative",
-                                        "disabled:opacity-80 disabled:cursor-not-allowed",
+                                        locked ? "opacity-75 grayscale cursor-not-allowed" : "",
                                         "transition-transform duration-150 active:scale-[0.99]",
                                     ].join(" ")}
-                                    onClick={() => console.log("Open lesson", lesson.id)}
+                                    style={ui.wrapStyle}
+                                    onClick={() => {
+                                        if (locked) return;
+                                        console.log("Open lesson", lesson.id);
+                                    }}
                                 >
-                                    {/* icon */}
+                                    {/* icon left */}
                                     <div className="absolute left-5 top-1/2 -translate-y-1/2">
-                                        {isFirst ? <HeartIcon /> : <ShieldIcon />}
+                                        {locked ? <LockIcon size={36} stroke="white" /> : getLessonIcon(lesson.category)}
                                     </div>
 
                                     {/* content */}
                                     <div className="pl-[70px] pr-[60px]">
                                         <div className="text-white/95 font-semibold text-[18px]">
-                                            Урок {lesson.orderIndex}
+                                            {t("home.lessonLabel", { number: lesson.orderIndex })}
                                         </div>
 
                                         <div className="text-white font-black text-[28px] leading-tight">
@@ -208,8 +230,6 @@ export default function HomeMobile() {
                         })
                     )}
                 </div>
-
-
             </div>
         </div>
     );

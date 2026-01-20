@@ -13,6 +13,8 @@ import {
     setStoredLang,
 } from "../utils/langStorage";
 
+import { COLORS } from "../theme/colors";
+
 export default function ChooseLanguage() {
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
@@ -25,21 +27,21 @@ export default function ChooseLanguage() {
 
     const didInitRef = useRef(false);
 
-    // ✅ если пользователь уже выбирал язык — не показываем choose-language
+    // ✅ если язык уже выбирали — не показываем
     useEffect(() => {
         if (isLangSelected()) {
             navigate("/register", { replace: true });
         }
     }, [navigate]);
 
-    // ✅ грузим список языков с бэка (только один раз)
+    // ✅ грузим языки
     useEffect(() => {
         (async () => {
             try {
                 setLoading(true);
 
                 const data = await getLanguages();
-                const list = data || [];
+                const list = Array.isArray(data) ? data : [];
                 setLangs(list);
 
                 if (!didInitRef.current) {
@@ -64,7 +66,7 @@ export default function ChooseLanguage() {
                 setLoading(false);
             }
         })();
-    }, [defaultLang]); // ✅ i18n не добавляем
+    }, [defaultLang, i18n]);
 
     const onSelectLang = async (langCode) => {
         setSelected(langCode);
@@ -81,19 +83,19 @@ export default function ChooseLanguage() {
 
     return (
         <div
-            className={[
-                "w-full overflow-x-hidden",
-                "min-h-[100dvh]",
-                "bg-gradient-to-b from-[#F7B338] via-[#F0A23B] to-[#E38D2F]",
-            ].join(" ")}
+            className="w-full overflow-x-hidden min-h-[100dvh]"
+            style={{
+                background: `linear-gradient(to bottom, ${COLORS.bg.orangeTop}, ${COLORS.bg.orangeMid}, ${COLORS.bg.orangeBottom})`,
+            }}
         >
             <div className="max-w-[420px] mx-auto w-full min-h-[100dvh] px-4 pt-8 pb-10">
-                {/* ✅ LOGO (как в RegisterMobile) */}
+                {/* ✅ LOGO */}
                 <div className="flex justify-center">
                     <div className="inline-flex items-center justify-center px-7 py-3 rounded-[30px] bg-white/85 shadow-[0_18px_45px_rgba(0,0,0,0.18)] border border-white/70">
                         <div
-                            className="text-[62px] leading-none font-black tracking-wide text-[#5AC0FF]"
+                            className="text-[62px] leading-none font-black tracking-wide"
                             style={{
+                                color: COLORS.brand.logoBlue,
                                 textShadow:
                                     "0 6px 0 rgba(255,255,255,0.90), 0 18px 45px rgba(0,0,0,0.18)",
                             }}
@@ -105,43 +107,56 @@ export default function ChooseLanguage() {
 
                 {/* CAT + bubble */}
                 <div className="relative mt-6 flex items-start gap-3 w-full">
-                    {/* CAT */}
                     <img
                         src={murziya}
                         alt="Murziya"
                         className="w-[135px] h-[135px] object-contain drop-shadow-[0_18px_28px_rgba(0,0,0,0.22)] shrink-0"
                     />
 
-                    {/* Bubble */}
                     <div className="relative flex-1 pt-3 min-w-0">
                         <div className="relative w-full">
-                            {/* ✅ Tail border */}
+                            {/* Tail border */}
                             <div
                                 className={[
                                     "absolute left-[-14px] top-[34px]",
                                     "w-0 h-0",
                                     "border-y-[14px] border-y-transparent",
-                                    "border-r-[16px] border-r-white/70",
+                                    "border-r-[16px]",
                                     "opacity-90",
                                 ].join(" ")}
+                                style={{ borderRightColor: "rgba(255,255,255,0.7)" }}
                             />
-                            {/* ✅ Tail body */}
+
+                            {/* Tail body */}
                             <div
                                 className={[
                                     "absolute left-[-12px] top-[36px]",
                                     "w-0 h-0",
                                     "border-y-[12px] border-y-transparent",
-                                    "border-r-[14px] border-r-white/95",
+                                    "border-r-[14px]",
                                     "drop-shadow-[0_6px_10px_rgba(0,0,0,0.12)]",
                                 ].join(" ")}
+                                style={{ borderRightColor: "rgba(255,255,255,0.95)" }}
                             />
 
-                            <div className="relative bg-white/95 border-2 border-white/70 rounded-[22px] px-5 py-3 shadow-[0_14px_30px_rgba(0,0,0,0.18)] overflow-hidden">
-                                <div className="text-left font-black text-[18px] text-[#2F7CC8] leading-tight break-words">
+                            <div
+                                className="relative border-2 rounded-[22px] px-5 py-3 shadow-[0_14px_30px_rgba(0,0,0,0.18)] overflow-hidden"
+                                style={{
+                                    background: "rgba(255,255,255,0.95)",
+                                    borderColor: "rgba(255,255,255,0.7)",
+                                }}
+                            >
+                                <div
+                                    className="text-left font-black text-[18px] leading-tight break-words"
+                                    style={{ color: COLORS.brand.titleBlue }}
+                                >
                                     {t("chooseLanguage.bubbleTitle")}
                                 </div>
 
-                                <div className="mt-1 text-left font-extrabold text-[15px] text-[#8B6B20] break-words">
+                                <div
+                                    className="mt-1 text-left font-extrabold text-[15px] break-words"
+                                    style={{ color: COLORS.brand.brown }}
+                                >
                                     {t("chooseLanguage.bubbleName")}
                                 </div>
                             </div>
@@ -152,7 +167,10 @@ export default function ChooseLanguage() {
                 {/* Title */}
                 <div className="mt-6 flex justify-center w-full">
                     <div className="max-w-full rounded-[28px] bg-white/90 px-8 py-3 shadow-[0_16px_38px_rgba(0,0,0,0.18)] border border-white/70">
-                        <div className="text-[34px] font-black text-[#446BFF] leading-none text-center break-words">
+                        <div
+                            className="text-[34px] font-black leading-none text-center break-words"
+                            style={{ color: COLORS.brand.titleBlue2 }}
+                        >
                             {t("chooseLanguage.title")}
                         </div>
                     </div>
@@ -175,11 +193,15 @@ export default function ChooseLanguage() {
                                     "flex items-center justify-center",
                                     "text-[28px] font-black",
                                     "bg-white/90",
-                                    active ? "border-[#76D82D]" : "border-white/70",
                                     active ? "scale-[1.02]" : "scale-100",
                                     "transition-transform duration-150",
                                     loading ? "opacity-70" : "",
                                 ].join(" ")}
+                                style={{
+                                    borderColor: active
+                                        ? COLORS.brand.greenActive
+                                        : "rgba(255,255,255,0.7)",
+                                }}
                             >
                                 {l.label}
                             </button>
@@ -194,7 +216,11 @@ export default function ChooseLanguage() {
                         type="button"
                         onClick={onContinue}
                         disabled={loading || !selected}
-                        className="w-full h-[74px] rounded-[30px] bg-gradient-to-b from-[#78D82D] to-[#4EA61D] text-white text-[34px] font-black shadow-[0_12px_0_#2F7C12,0_26px_60px_rgba(0,0,0,0.22)] disabled:opacity-70"
+                        className="w-full h-[74px] rounded-[30px] text-white text-[34px] font-black disabled:opacity-70"
+                        style={{
+                            background: `linear-gradient(to bottom, ${COLORS.auth.buttonGreenTop}, ${COLORS.auth.buttonGreenBottom})`,
+                            boxShadow: `0 12px 0 ${COLORS.auth.buttonShadowGreen}, 0 26px 60px rgba(0,0,0,0.22)`,
+                        }}
                     >
                         {t("chooseLanguage.continue")}
                     </motion.button>
