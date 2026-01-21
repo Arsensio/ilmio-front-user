@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { syncUserLanguageFromBackend } from "../services/syncUserLanguage";
 
 import murziya from "../assets/images/murziya.png";
 import { login } from "../api/auth/authApi";
@@ -148,6 +149,7 @@ export default function LoginMobile() {
 
     const [isLoading, setIsLoading] = useState(false);
     const [errorText, setErrorText] = useState("");
+    const { i18n } = useTranslation();
 
     const onLogin = async () => {
         try {
@@ -160,6 +162,7 @@ export default function LoginMobile() {
             });
 
             setStoredToken(data.token);
+            await syncUserLanguageFromBackend(i18n);
             navigate("/app/home", { replace: true });
         } catch (e) {
             console.error("Login error", e);

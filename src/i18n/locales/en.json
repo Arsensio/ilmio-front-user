@@ -77,5 +77,20 @@
     "loading": "Loading...",
     "empty": "No lessons yet",
     "lessonLabel": "Lesson {{number}}"
+  },
+  "lesson": {
+    "loading": "Загрузка урока",
+    "error": "Ошибка",
+    "loadFailed": "Не удалось загрузить урок 😿",
+
+    "introTitle": "Урок #{{number}}",
+    "blockTitle": "Шаг {{number}}",
+
+    "next": "Далее",
+
+    "finishTitle": "Урок завершён",
+    "finishCongrats": "Ты успешно прошёл сегодняшний урок!",
+    "finishLessonName": "Название урока:",
+    "finishGoHome": "На главную"
   }
 }

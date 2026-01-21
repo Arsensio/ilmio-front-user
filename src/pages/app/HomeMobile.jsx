@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 import murziya from "../../assets/images/murziya.png";
 import { getUserLessons } from "../../api/user/lessonsApi";
@@ -89,8 +90,11 @@ function getLessonIcon(category) {
     return <HeartIcon />;
 }
 
+/* ---------------- PAGE ---------------- */
+
 export default function HomeMobile() {
     const { t } = useTranslation();
+    const navigate = useNavigate();
 
     const [lessons, setLessons] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -107,6 +111,7 @@ export default function HomeMobile() {
                 const list = Array.isArray(data) ? data : [];
                 list.sort((a, b) => (a?.orderIndex ?? 0) - (b?.orderIndex ?? 0));
 
+                console.log("Try to get lessons");
                 setLessons(list);
             } catch (e) {
                 console.error("Failed to load lessons", e);
@@ -152,7 +157,12 @@ export default function HomeMobile() {
                     <img
                         src={murziya}
                         alt="Murziya"
-                        className="w-[170px] h-[170px] object-contain drop-shadow-[0_28px_34px_rgba(0,0,0,0.25)]"
+                        className="w-[170px] h-[170px] object-contain"
+                        style={{
+                            WebkitMaskImage:
+                                "radial-gradient(circle, black 60%, transparent 72%)",
+                            maskImage: "radial-gradient(circle, black 60%, transparent 72%)",
+                        }}
                     />
                 </div>
 
@@ -196,12 +206,18 @@ export default function HomeMobile() {
                                     style={ui.wrapStyle}
                                     onClick={() => {
                                         if (locked) return;
-                                        console.log("Open lesson", lesson.id);
+
+                                        // ✅ переход на страницу урока
+                                        navigate(`/lesson/${lesson.id}`);
                                     }}
                                 >
                                     {/* icon left */}
                                     <div className="absolute left-5 top-1/2 -translate-y-1/2">
-                                        {locked ? <LockIcon size={36} stroke="white" /> : getLessonIcon(lesson.category)}
+                                        {locked ? (
+                                            <LockIcon size={36} stroke="white" />
+                                        ) : (
+                                            getLessonIcon(lesson.category)
+                                        )}
                                     </div>
 
                                     {/* content */}

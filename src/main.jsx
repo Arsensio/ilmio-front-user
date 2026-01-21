@@ -6,6 +6,8 @@ import "./index.css";
 import "./i18n"; // ✅ важно: подключаем i18n один раз
 import AppRoutes from "./AppRoutes";
 
+console.log("APP STARTED");
+
 ReactDOM.createRoot(document.getElementById("root")).render(
     <React.StrictMode>
         <BrowserRouter>

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-
+import { syncUserLanguageFromBackend } from "../services/syncUserLanguage";
 import { verifyOtp, getVerifyStatus } from "../api/auth/registerApi";
 import { setStoredToken } from "../utils/tokenStorage";
 import {
@@ -38,6 +38,7 @@ export default function VerifyOtpMobile() {
     const [loadingTimer, setLoadingTimer] = useState(true);
 
     const timerRef = useRef(null);
+    const { i18n } = useTranslation();
 
     // ✅ 1) если зашёл без uuid — назад
     useEffect(() => {
@@ -148,6 +149,8 @@ export default function VerifyOtpMobile() {
                 clearInterval(timerRef.current);
                 timerRef.current = null;
             }
+
+            await syncUserLanguageFromBackend(i18n);
 
             // ✅ IMPORTANT: после успеха ведём в приложение
             navigate("/app/home", { replace: true });

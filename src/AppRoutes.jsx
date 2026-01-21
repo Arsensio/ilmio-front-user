@@ -1,3 +1,4 @@
+// AppRoutes.jsx
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
@@ -14,13 +15,14 @@ import HomeMobile from "./pages/app/HomeMobile";
 import NotesMobile from "./pages/app/NotesMobile";
 import ProfileMobile from "./pages/app/ProfileMobile";
 
+import LessonMobile from "./pages/app/LessonMobile";
+
 export default function AppRoutes() {
     return (
         <Routes>
-            {/* choose language отдельно */}
             <Route path="/choose-language" element={<ChooseLanguage />} />
 
-            {/* ---------- AUTH ---------- */}
+            {/* AUTH */}
             <Route
                 path="/login"
                 element={
@@ -48,7 +50,19 @@ export default function AppRoutes() {
                 }
             />
 
-            {/* ---------- APP (private) ---------- */}
+            {/* ✅ LESSON отдельный экран, без MobileLayout */}
+            <Route
+                path="/lesson/:lessonId"
+                element={
+                    <AuthGuard>
+                        <LanguageGate>
+                            <LessonMobile />
+                        </LanguageGate>
+                    </AuthGuard>
+                }
+            />
+
+            {/* APP (with bottom menu) */}
             <Route
                 path="/app"
                 element={
@@ -59,18 +73,13 @@ export default function AppRoutes() {
                     </AuthGuard>
                 }
             >
-                {/* ✅ default route /app -> /app/home */}
                 <Route index element={<Navigate to="home" replace />} />
-
                 <Route path="home" element={<HomeMobile />} />
                 <Route path="notes" element={<NotesMobile />} />
                 <Route path="profile" element={<ProfileMobile />} />
             </Route>
 
-            {/* default */}
             <Route path="/" element={<Navigate to="/app" replace />} />
-
-            {/* fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
     );
