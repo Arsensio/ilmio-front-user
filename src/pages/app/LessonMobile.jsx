@@ -377,11 +377,15 @@ export default function LessonMobile() {
                     !loading && !errorText ? (
                         <div className="rounded-[28px] px-3 py-3 bg-white/15 backdrop-blur-md">
                             {isFinish ? (
-                                <PrimaryButton onClick={() => navigate("/app/home", { replace: true })}>
-                                    {t("lesson.finishGoHome")}
+                                <PrimaryButton
+                                    onClick={() => navigate(`/lesson/${lessonId}/test`, { replace: true })}
+                                >
+                                    {t("lesson.startTest")}
                                 </PrimaryButton>
                             ) : (
-                                <PrimaryButton onClick={next}>{t("lesson.next")}</PrimaryButton>
+                                <PrimaryButton onClick={next}>
+                                    {t("lesson.next")}
+                                </PrimaryButton>
                             )}
                         </div>
                     ) : null

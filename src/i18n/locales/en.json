@@ -79,18 +79,20 @@
     "lessonLabel": "Lesson {{number}}"
   },
   "lesson": {
-    "loading": "Загрузка урока",
-    "error": "Ошибка",
-    "loadFailed": "Не удалось загрузить урок 😿",
+    "loading": "Loading lesson",
+    "error": "Error",
+    "loadFailed": "Failed to load lesson 😿",
 
-    "introTitle": "Урок #{{number}}",
-    "blockTitle": "Шаг {{number}}",
+    "introTitle": "Lesson #{{number}}",
+    "blockTitle": "Step {{number}}",
 
-    "next": "Далее",
+    "next": "Next",
 
-    "finishTitle": "Урок завершён",
-    "finishCongrats": "Ты успешно прошёл сегодняшний урок!",
-    "finishLessonName": "Название урока:",
-    "finishGoHome": "На главную"
+    "finishTitle": "Lesson completed",
+    "finishCongrats": "You successfully completed today’s lesson!",
+    "finishLessonName": "Lesson name:",
+    "finishGoHome": "Go home",
+
+    "startTest": "Start test"
   }
 }

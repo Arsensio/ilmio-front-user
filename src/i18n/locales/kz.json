@@ -86,11 +86,13 @@
     "introTitle": "Сабақ #{{number}}",
     "blockTitle": "Қадам {{number}}",
 
-    "next": "Келесі",
+    "next": "Әрі қарай",
 
     "finishTitle": "Сабақ аяқталды",
-    "finishCongrats": "Бүгінгі сабақты сәтті аяқтадың!",
-    "finishLessonName": "Сабақтың атауы:",
-    "finishGoHome": "Басты бетке"
+    "finishCongrats": "Сен бүгінгі сабақты сәтті өттің!",
+    "finishLessonName": "Сабақ атауы:",
+    "finishGoHome": "Басты бетке",
+
+    "startTest": "Тестті бастау"
   }
 }

@@ -16,6 +16,7 @@ import NotesMobile from "./pages/app/NotesMobile";
 import ProfileMobile from "./pages/app/ProfileMobile";
 
 import LessonMobile from "./pages/app/LessonMobile";
+import LessonTestMobile from "./pages/app/LessonTestMobile";
 
 export default function AppRoutes() {
     return (
@@ -31,6 +32,7 @@ export default function AppRoutes() {
                     </LanguageGate>
                 }
             />
+
 
             <Route
                 path="/register"
@@ -61,6 +63,18 @@ export default function AppRoutes() {
                     </AuthGuard>
                 }
             />
+
+            <Route
+                path="/lesson/:lessonId/test"
+                element={
+                    <AuthGuard>
+                        <LanguageGate>
+                            <LessonTestMobile />
+                        </LanguageGate>
+                    </AuthGuard>
+                }
+            />
+
 
             {/* APP (with bottom menu) */}
             <Route

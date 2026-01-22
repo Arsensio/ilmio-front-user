@@ -98,6 +98,8 @@
     "finishTitle": "Урок завершён",
     "finishCongrats": "Ты успешно прошёл сегодняшний урок!",
     "finishLessonName": "Название урока:",
-    "finishGoHome": "На главную"
+    "finishGoHome": "На главную",
+
+    "startTest": "Начать тест"
   }
 }
