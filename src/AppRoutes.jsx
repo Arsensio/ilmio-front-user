@@ -1,6 +1,6 @@
 // AppRoutes.jsx
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import {Navigate, Route, Routes} from "react-router-dom";
 
 import LoginMobile from "./pages/LoginMobile";
 import RegisterMobile from "./pages/RegisterMobile";
@@ -16,7 +16,6 @@ import NotesMobile from "./pages/app/NotesMobile";
 import ProfileMobile from "./pages/app/ProfileMobile";
 
 import LessonMobile from "./pages/app/LessonMobile";
-import LessonTestMobile from "./pages/app/LessonTestMobile";
 
 export default function AppRoutes() {
     return (
@@ -63,18 +62,6 @@ export default function AppRoutes() {
                     </AuthGuard>
                 }
             />
-
-            <Route
-                path="/lesson/:lessonId/test"
-                element={
-                    <AuthGuard>
-                        <LanguageGate>
-                            <LessonTestMobile />
-                        </LanguageGate>
-                    </AuthGuard>
-                }
-            />
-
 
             {/* APP (with bottom menu) */}
             <Route
