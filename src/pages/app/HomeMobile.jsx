@@ -233,7 +233,7 @@ export default function HomeMobile() {
             if (!activeRef.current) return;
 
             window.scrollTo({
-                top: activeRef.current.offsetTop - 180, // 👈 смещение от верха
+                top: activeRef.current.offsetTop - 50, // 👈 смещение от верха
                 behavior: "smooth",
             });
         }, 200);
