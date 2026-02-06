@@ -1,250 +1,349 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import React, {useEffect, useMemo, useRef, useState} from "react";
+import {useNavigate} from "react-router-dom";
+import {motion} from "framer-motion";
 
+import {getUserLessons} from "../../api/user/lessonsApi";
 import murziya from "../../assets/images/murziya.png";
-import { getUserLessons } from "../../api/user/lessonsApi";
-import { COLORS } from "../../theme/colors";
-import { getLessonCardUi } from "./homeLessonUi";
+import {COLORS} from "../../theme/colors";
 
-/* ---------------- ICONS ---------------- */
+/* ================= CONFIG ================= */
+const STEP_GAP = 130;
+const CENTER_X = 150;
+const START_Y = 80;
 
-const HeartIcon = () => (
-    <svg width="42" height="42" viewBox="0 0 48 48" fill="none">
-        <path
-            d="M24 42s-14-8.8-18.6-18.1C2.4 17.9 5.3 10 13 10c4.5 0 7.3 2.7 11 7 3.7-4.3 6.5-7 11-7 7.7 0 10.6 7.9 7.6 13.9C38 33.2 24 42 24 42z"
-            fill="white"
-            opacity="0.95"
-        />
-        <circle cx="18" cy="22" r="2.5" fill="#79D82E" opacity="0.9" />
-        <circle cx="30" cy="22" r="2.5" fill="#79D82E" opacity="0.9" />
-        <path
-            d="M18 28c1.8 1.4 3.8 2.1 6 2.1s4.2-.7 6-2.1"
-            stroke="#79D82E"
-            strokeWidth="2.6"
-            strokeLinecap="round"
-            opacity="0.9"
-        />
+/* ================= ICONS ================= */
+const PlayIcon = () => (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+        <path d="M8 5v14l11-7z"/>
     </svg>
 );
 
-const ShieldIcon = () => (
-    <svg width="42" height="42" viewBox="0 0 48 48" fill="none">
+const CheckIcon = () => (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
         <path
-            d="M24 6c6 4 12 4 16 6v13c0 10-7 16-16 19C15 41 8 35 8 25V12c4-2 10-2 16-6z"
-            fill="white"
-            opacity="0.95"
-        />
-        <path
-            d="M18.5 24.5l4 4 8-10"
-            stroke="#2F7CC8"
-            strokeWidth="3.2"
+            d="M5 13l4 4L19 7"
+            stroke="white"
+            strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
-            opacity="0.9"
         />
     </svg>
 );
 
-const LockIcon = ({ size = 30, stroke = "white" }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+const LockIcon = () => (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
         <path
             d="M7 10V8.5C7 6 9 4 11.5 4h1C15 4 17 6 17 8.5V10"
-            stroke={stroke}
+            stroke="white"
             strokeWidth="2"
             strokeLinecap="round"
-            opacity="0.92"
         />
-        <path
-            d="M6.5 10h11c1 0 1.8.8 1.8 1.8v6.7c0 1-.8 1.8-1.8 1.8h-11c-1 0-1.8-.8-1.8-1.8v-6.7c0-1 .8-1.8 1.8-1.8Z"
-            stroke={stroke}
+        <rect
+            x="5"
+            y="10"
+            width="14"
+            height="10"
+            rx="2"
+            stroke="white"
             strokeWidth="2"
-            strokeLinejoin="round"
-            opacity="0.92"
         />
     </svg>
 );
 
-const ArrowCircle = ({ locked }) => (
-    <div className="w-[34px] h-[34px] rounded-full flex items-center justify-center bg-white/90">
-        {locked ? (
-            <LockIcon size={22} stroke={COLORS.lockStroke} />
-        ) : (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path
-                    d="M10 7l5 5-5 5"
-                    stroke={COLORS.black}
-                    strokeWidth="2.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    opacity="0.75"
-                />
-            </svg>
-        )}
-    </div>
-);
+/* ================= STYLES ================= */
+function lessonStyle(status) {
+    if (status === "ACTIVE") {
+        return {
+            bg: "bg-gradient-to-b from-green-300 to-green-600",
+            glow: "shadow-[0_0_35px_rgba(34,197,94,0.9)] ring-4 ring-green-200",
+        };
+    }
 
-function getLessonIcon(category) {
-    if (category === "HARD_SKILL") return <ShieldIcon />;
-    if (category === "SOFT_SKILL") return <HeartIcon />;
-    return <HeartIcon />;
+    if (status === "COMPLETED") {
+        return {
+            bg: "bg-gradient-to-b from-yellow-200 to-yellow-400",
+            glow: "shadow-[0_18px_36px_rgba(234,179,8,0.6)]",
+        };
+    }
+
+    return {
+        bg: "bg-gradient-to-b from-gray-200 to-gray-300",
+        glow: "opacity-95",
+    };
 }
 
-/* ---------------- PAGE ---------------- */
+/* ================= POSITION ENGINE ================= */
+function getNodePosition(index, type) {
+    const y = START_Y + index * STEP_GAP;
 
-export default function HomeMobile() {
-    const { t } = useTranslation();
-    const navigate = useNavigate();
+    if (type === "THEME") {
+        return {x: CENTER_X, y};
+    }
 
-    const [lessons, setLessons] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const offset = index % 2 === 0 ? 70 : -70;
+    return {x: CENTER_X + offset, y};
+}
 
-    const activeLessonRef = useRef(null);
-    const didScrollRef = useRef(false);
+/* ================= PATH ================= */
+function WavyPath({nodes}) {
+    if (nodes.length < 2) return null;
 
-    useEffect(() => {
-        (async () => {
-            try {
-                setLoading(true);
+    const points = nodes.map((n, i) =>
+        getNodePosition(i, n.type)
+    );
 
-                const data = await getUserLessons();
-                const list = Array.isArray(data) ? data : [];
-                list.sort((a, b) => (a?.orderIndex ?? 0) - (b?.orderIndex ?? 0));
+    let d = `M ${points[0].x} ${points[0].y}`;
 
-                console.log("Try to get lessons");
-                setLessons(list);
-            } catch (e) {
-                console.error("Failed to load lessons", e);
-                setLessons([]);
-            } finally {
-                setLoading(false);
-            }
-        })();
-    }, []);
+    for (let i = 1; i < points.length; i++) {
+        const prev = points[i - 1];
+        const curr = points[i];
+        const midY = (prev.y + curr.y) / 2;
 
-    // ✅ автоскролл к ACTIVE (в центр)
-    useEffect(() => {
-        if (loading) return;
-        if (didScrollRef.current) return;
+        d += ` C ${prev.x} ${midY}, ${curr.x} ${midY}, ${curr.x} ${curr.y}`;
+    }
 
-        const hasActive = lessons.some((l) => l.lessonStatus === "ACTIVE");
-        if (!hasActive) return;
+    return (
+        <svg
+            className="absolute left-1/2 -translate-x-1/2 top-0"
+            width="300"
+            height={points[points.length - 1].y + 200}
+        >
+            <path
+                d={d}
+                fill="none"
+                stroke="rgba(255,255,255,0.35)"
+                strokeWidth="22"
+                strokeLinecap="round"
+            />
 
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                if (activeLessonRef.current) {
-                    activeLessonRef.current.scrollIntoView({
-                        behavior: "smooth",
-                        block: "center",
-                        inline: "nearest",
-                    });
-                    didScrollRef.current = true;
-                }
-            });
-        });
-    }, [loading, lessons]);
+            <motion.path
+                d={d}
+                fill="none"
+                stroke="url(#grad)"
+                strokeWidth="16"
+                strokeLinecap="round"
+                initial={{pathLength: 0}}
+                animate={{pathLength: 1}}
+                transition={{duration: 1.4, ease: "easeInOut"}}
+            />
+
+            <defs>
+                <linearGradient id="grad" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stopColor="#FACC15"/>
+                    <stop offset="50%" stopColor="#22C55E"/>
+                    <stop offset="100%" stopColor="#60A5FA"/>
+                </linearGradient>
+            </defs>
+        </svg>
+    );
+}
+
+/* ================= NODE ================= */
+function Node({ node, index, navigate, activeRef }) {
+    const { x, y } = getNodePosition(index, node.type);
+    const finalY =
+        node.type === "LESSON" ? y - 50 : y - 15;
+
+    if (node.type === "THEME") {
+        return (
+            <div
+                className="absolute left-1/2"
+                style={{ top: finalY, transform: "translateX(-50%)" }}
+            >
+                <div className="px-8 py-3 rounded-full text-white font-black bg-orange-400 shadow-lg">
+                    {node.orderIndex} {node.title}
+                </div>
+            </div>
+        );
+    }
+
+    const style = lessonStyle(node.status);
 
     return (
         <div
-            className="min-h-screen w-full"
+            ref={node.status === "ACTIVE" ? activeRef : null}
+            className="absolute left-1/2"
             style={{
-                background: `linear-gradient(to bottom, ${COLORS.bg.orangeTop}, ${COLORS.bg.orangeMid}, ${COLORS.bg.orangeBottom})`,
+                top: finalY,
+                transform: `translateX(${x - CENTER_X}px) translateX(-50%)`,
             }}
         >
-            <div className="max-w-[420px] mx-auto min-h-screen px-4 pt-6 pb-32 relative">
-                {/* CAT */}
-                <div className="mt-2 relative flex justify-center">
-                    <img
-                        src={murziya}
-                        alt="Murziya"
-                        className="w-[170px] h-[170px] object-contain"
-                        style={{
-                            WebkitMaskImage:
-                                "radial-gradient(circle, black 60%, transparent 72%)",
-                            maskImage: "radial-gradient(circle, black 60%, transparent 72%)",
-                        }}
-                    />
+            {/* КНОПКА — ЯКОРЬ */}
+            <div className="relative w-[86px] h-[86px] flex items-center justify-center">
+                <button
+                    disabled={node.status === "LOCKED"}
+                    onClick={() => navigate(`/lesson/${node.id}`)}
+                    className={`w-[86px] h-[86px] rounded-full flex items-center justify-center
+                        ${style.bg} ${style.glow}`}
+                >
+                    {node.status === "ACTIVE" && <PlayIcon />}
+                    {node.status === "COMPLETED" && <CheckIcon />}
+                    {node.status === "LOCKED" && <LockIcon />}
+                </button>
+
+                {/* ТЕКСТ — НЕ ВЛИЯЕТ НА ЦЕНТР */}
+                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2
+                                text-white font-bold text-sm text-center w-[120px] line-clamp-2">
+                    {node.orderIndex} {node.title}
                 </div>
+            </div>
+        </div>
+    );
+}
 
-                {/* LESSONS */}
-                <div className="mt-4 space-y-5">
-                    {loading ? (
-                        <div className="rounded-[28px] bg-white/80 border border-white/70 shadow-[0_16px_40px_rgba(0,0,0,0.18)] p-6">
-                            <div className="text-center font-black text-[#2F7CC8] text-[22px]">
-                                {t("home.loading")}
-                            </div>
-                        </div>
-                    ) : lessons.length === 0 ? (
-                        <div className="rounded-[28px] bg-white/80 border border-white/70 shadow-[0_16px_40px_rgba(0,0,0,0.18)] p-6">
-                            <div className="text-center font-black text-[#2F7CC8] text-[22px]">
-                                {t("home.empty")}
-                            </div>
-                        </div>
-                    ) : (
-                        lessons.map((lesson) => {
-                            const ui = getLessonCardUi(lesson.lessonStatus);
+function ScreenGlares() {
+    return (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
+            {/* Блик 1 */}
+            <motion.div
+                className="absolute w-[300px] h-[300px] rounded-full"
+                style={{
+                    background:
+                        "radial-gradient(circle, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 70%)",
+                    top: "10%",
+                    left: "-10%",
+                }}
+                animate={{
+                    opacity: [0.15, 0.35, 0.15],
+                    x: [0, 40, 0],
+                }}
+                transition={{
+                    duration: 6,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                }}
+            />
 
-                            const locked = lesson.lessonStatus === "LOCKED";
-                            const isActive = lesson.lessonStatus === "ACTIVE";
+            {/* Блик 2 */}
+            <motion.div
+                className="absolute w-[220px] h-[220px] rounded-full"
+                style={{
+                    background:
+                        "radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%)",
+                    bottom: "20%",
+                    right: "-5%",
+                }}
+                animate={{
+                    opacity: [0.1, 0.3, 0.1],
+                    y: [0, -30, 0],
+                }}
+                transition={{
+                    duration: 5,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 1.5,
+                }}
+            />
 
-                            return (
-                                <button
-                                    key={lesson.id}
-                                    type="button"
-                                    disabled={locked}
-                                    ref={isActive ? activeLessonRef : null}
-                                    className={[
-                                        "w-full",
-                                        "rounded-[30px]",
-                                        ui.shadowClass,
-                                        "px-5 py-5",
-                                        "text-left",
-                                        "relative",
-                                        locked ? "opacity-75 grayscale cursor-not-allowed" : "",
-                                        "transition-transform duration-150 active:scale-[0.99]",
-                                    ].join(" ")}
-                                    style={ui.wrapStyle}
-                                    onClick={() => {
-                                        if (locked) return;
+            {/* Блик 3 — мягкий */}
+            <motion.div
+                className="absolute w-[180px] h-[180px] rounded-full"
+                style={{
+                    background:
+                        "radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 70%)",
+                    top: "45%",
+                    left: "60%",
+                }}
+                animate={{
+                    opacity: [0.1, 0.25, 0.1],
+                    scale: [1, 1.1, 1],
+                }}
+                transition={{
+                    duration: 7,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                }}
+            />
+        </div>
+    );
+}
 
-                                        // ✅ переход на страницу урока
-                                        navigate(`/lesson/${lesson.id}`);
-                                    }}
-                                >
-                                    {/* icon left */}
-                                    <div className="absolute left-5 top-1/2 -translate-y-1/2">
-                                        {locked ? (
-                                            <LockIcon size={36} stroke="white" />
-                                        ) : (
-                                            getLessonIcon(lesson.category)
-                                        )}
-                                    </div>
 
-                                    {/* content */}
-                                    <div className="pl-[70px] pr-[60px]">
-                                        <div className="text-white/95 font-semibold text-[18px]">
-                                            {t("home.lessonLabel", { number: lesson.orderIndex })}
-                                        </div>
 
-                                        <div className="text-white font-black text-[28px] leading-tight">
-                                            {lesson.title}
-                                        </div>
+/* ================= PAGE ================= */
+export default function HomeMobile() {
+    const navigate = useNavigate();
+    const activeRef = useRef(null);
+    const [data, setData] = useState([]);
 
-                                        {lesson.description ? (
-                                            <div className="mt-1 text-white/90 text-[14px] font-semibold line-clamp-2">
-                                                {lesson.description}
-                                            </div>
-                                        ) : null}
-                                    </div>
+    useEffect(() => {
+        getUserLessons().then(setData);
+    }, []);
 
-                                    {/* arrow/lock */}
-                                    <div className="absolute right-5 top-1/2 -translate-y-1/2">
-                                        <ArrowCircle locked={locked} />
-                                    </div>
-                                </button>
-                            );
-                        })
-                    )}
+    const nodes = useMemo(() => {
+        const res = [];
+
+        data.forEach(({theme, lessons}) => {
+            res.push({type: "THEME", id: theme.id, orderIndex: theme.orderIndex, title: theme.title});
+
+            lessons.forEach((l) =>
+                res.push({
+                    type: "LESSON",
+                    id: l.id,
+                    title: l.title,          // 👈 ВОТ ЭТО
+                    orderIndex: l.orderIndex,
+                    status: l.lessonStatus,
+                })
+            );
+        });
+
+        return res;
+    }, [data]);
+
+    const activeIndex = useMemo(() => {
+        return nodes.findIndex(
+            (n) => n.type === "LESSON" && n.status === "ACTIVE"
+        );
+    }, [nodes]);
+
+    useEffect(() => {
+        if (activeIndex === -1) return;
+
+        const timer = setTimeout(() => {
+            if (!activeRef.current) return;
+
+            window.scrollTo({
+                top: activeRef.current.offsetTop - 180, // 👈 смещение от верха
+                behavior: "smooth",
+            });
+        }, 200);
+
+        return () => clearTimeout(timer);
+    }, [activeIndex]);
+
+    return (
+        <div
+            className="relative"
+            style={{
+                background: `linear-gradient(${COLORS.bg.orangeTop}, ${COLORS.bg.orangeBottom})`,
+            }}
+        >
+            <ScreenGlares/>
+            <div
+                className="max-w-[420px] mx-auto px-4 pt-6 relative"
+                style={{
+                    minHeight: "100vh",
+                    paddingBottom: nodes.length * STEP_GAP + 120, // запас под таббар
+                }}
+            >
+                <img
+                    src={murziya}
+                    alt="cat"
+                    className="absolute left-4 top-4 w-[140px]"
+                />
+
+                <div className="relative mt-40">
+                    <WavyPath nodes={nodes} />
+
+                    {nodes.map((node, i) => (
+                        <Node
+                            key={`${node.type}-${node.id}`}
+                            node={node}
+                            index={i}
+                            navigate={navigate}
+                            activeRef={activeRef}
+                        />
+                    ))}
                 </div>
             </div>
         </div>
