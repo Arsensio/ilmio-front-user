@@ -22,9 +22,7 @@ export default function AuthGuard({ children }) {
             }
 
             try {
-                console.log("[AuthGuard] syncing language from backend...");
                 await syncUserLanguageFromBackend(i18n);
-                console.log("[AuthGuard] language sync done");
             } catch (e) {
                 console.warn("[AuthGuard] language sync failed:", e);
             } finally {
