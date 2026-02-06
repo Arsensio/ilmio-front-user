@@ -139,8 +139,8 @@ function WavyPath({nodes}) {
 }
 
 /* ================= NODE ================= */
-function Node({ node, index, navigate, activeRef }) {
-    const { x, y } = getNodePosition(index, node.type);
+function Node({node, index, navigate, activeRef}) {
+    const {x, y} = getNodePosition(index, node.type);
     const finalY =
         node.type === "LESSON" ? y - 50 : y - 15;
 
@@ -148,10 +148,25 @@ function Node({ node, index, navigate, activeRef }) {
         return (
             <div
                 className="absolute left-1/2"
-                style={{ top: finalY, transform: "translateX(-50%)" }}
+                style={{top: finalY, transform: "translateX(-50%)"}}
             >
-                <div className="px-8 py-3 rounded-full text-white font-black bg-orange-400 shadow-lg">
-                    {node.orderIndex} {node.title}
+                <div
+                    className="
+                      max-w-[360px]
+                      px-10 py-3
+                      rounded-[999px]
+                      bg-orange-400
+                      shadow-lg
+                      text-white
+                      font-black
+                      text-center
+                      leading-tight
+                      whitespace-nowrap
+                      flex items-center justify-center gap-2
+                    "
+                >
+                    <span>{node.orderIndex}</span>
+                    <span>{node.title}</span>
                 </div>
             </div>
         );
@@ -176,9 +191,9 @@ function Node({ node, index, navigate, activeRef }) {
                     className={`w-[86px] h-[86px] rounded-full flex items-center justify-center
                         ${style.bg} ${style.glow}`}
                 >
-                    {node.status === "ACTIVE" && <PlayIcon />}
-                    {node.status === "COMPLETED" && <CheckIcon />}
-                    {node.status === "LOCKED" && <LockIcon />}
+                    {node.status === "ACTIVE" && <PlayIcon/>}
+                    {node.status === "COMPLETED" && <CheckIcon/>}
+                    {node.status === "LOCKED" && <LockIcon/>}
                 </button>
 
                 {/* ТЕКСТ — НЕ ВЛИЯЕТ НА ЦЕНТР */}
@@ -191,12 +206,12 @@ function Node({ node, index, navigate, activeRef }) {
     );
 }
 
-function CatSpeech({ text }) {
+function CatSpeech({text}) {
     return (
         <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
+            initial={{opacity: 0, y: 10, scale: 0.95}}
+            animate={{opacity: 1, y: 0, scale: 1}}
+            transition={{duration: 0.4, ease: "easeOut"}}
             className="absolute top-[20px] left-0 w-full z-30"
         >
             <div
@@ -220,9 +235,6 @@ function CatSpeech({ text }) {
         </motion.div>
     );
 }
-
-
-
 
 
 /* ================= PAGE ================= */
@@ -292,11 +304,12 @@ export default function HomeMobile() {
                         className="w-[140px]"
                     />
 
-                    <CatSpeech text="Привет! Дильшат ағай попросил меня переделать дизайн главной страницы. И вот результат 😊" />
+                    <CatSpeech
+                        text="Привет! Дильшат ағай попросил меня переделать дизайн главной страницы. И вот результат 😊"/>
                 </div>
 
                 <div className="relative mt-40">
-                    <WavyPath nodes={nodes} />
+                    <WavyPath nodes={nodes}/>
 
                     {nodes.map((node, i) => (
                         <Node
