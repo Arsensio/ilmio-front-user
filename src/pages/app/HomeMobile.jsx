@@ -190,76 +190,6 @@ function Node({ node, index, navigate, activeRef }) {
         </div>
     );
 }
-
-function ScreenGlares() {
-    return (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
-            {/* Блик 1 */}
-            <motion.div
-                className="absolute w-[300px] h-[300px] rounded-full"
-                style={{
-                    background:
-                        "radial-gradient(circle, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 70%)",
-                    top: "10%",
-                    left: "-10%",
-                }}
-                animate={{
-                    opacity: [0.15, 0.35, 0.15],
-                    x: [0, 40, 0],
-                }}
-                transition={{
-                    duration: 6,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                }}
-            />
-
-            {/* Блик 2 */}
-            <motion.div
-                className="absolute w-[220px] h-[220px] rounded-full"
-                style={{
-                    background:
-                        "radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%)",
-                    bottom: "20%",
-                    right: "-5%",
-                }}
-                animate={{
-                    opacity: [0.1, 0.3, 0.1],
-                    y: [0, -30, 0],
-                }}
-                transition={{
-                    duration: 5,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 1.5,
-                }}
-            />
-
-            {/* Блик 3 — мягкий */}
-            <motion.div
-                className="absolute w-[180px] h-[180px] rounded-full"
-                style={{
-                    background:
-                        "radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 70%)",
-                    top: "45%",
-                    left: "60%",
-                }}
-                animate={{
-                    opacity: [0.1, 0.25, 0.1],
-                    scale: [1, 1.1, 1],
-                }}
-                transition={{
-                    duration: 7,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                }}
-            />
-        </div>
-    );
-}
-
-
-
 /* ================= PAGE ================= */
 export default function HomeMobile() {
     const navigate = useNavigate();
@@ -312,13 +242,7 @@ export default function HomeMobile() {
     }, [activeIndex]);
 
     return (
-        <div
-            className="relative"
-            style={{
-                background: `linear-gradient(${COLORS.bg.orangeTop}, ${COLORS.bg.orangeBottom})`,
-            }}
-        >
-            <ScreenGlares/>
+        <div className="relative">
             <div
                 className="max-w-[420px] mx-auto px-4 pt-6 relative"
                 style={{

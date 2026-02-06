@@ -1,6 +1,6 @@
 import React from "react";
-import { NavLink, Outlet } from "react-router-dom";
-import { Home, NotebookPen, User } from "lucide-react";
+import {NavLink, Outlet} from "react-router-dom";
+import {Home, NotebookPen, User} from "lucide-react";
 
 const tabs = [
     { to: "/app/home", label: "Home", icon: Home },
