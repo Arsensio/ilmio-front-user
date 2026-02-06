@@ -190,6 +190,41 @@ function Node({ node, index, navigate, activeRef }) {
         </div>
     );
 }
+
+function CatSpeech({ text }) {
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="absolute top-[20px] left-0 w-full z-30"
+        >
+            <div
+                className="relative bg-white/90 text-[#7A4A00]
+                           ml-[140px] mr-2
+                           px-4 py-3 rounded-[18px]
+                           font-bold text-sm leading-snug
+                           shadow-[0_10px_25px_rgba(0,0,0,0.18)]"
+            >
+                {text}
+
+                {/* хвостик */}
+                <div
+                    className="absolute left-[-6px] top-[22px]
+                               w-0 h-0
+                               border-t-[6px] border-t-transparent
+                               border-b-[6px] border-b-transparent
+                               border-r-[6px] border-r-white/90"
+                />
+            </div>
+        </motion.div>
+    );
+}
+
+
+
+
+
 /* ================= PAGE ================= */
 export default function HomeMobile() {
     const navigate = useNavigate();
@@ -250,11 +285,15 @@ export default function HomeMobile() {
                     paddingBottom: nodes.length * STEP_GAP + 120, // запас под таббар
                 }}
             >
-                <img
-                    src={murziya}
-                    alt="cat"
-                    className="absolute left-4 top-4 w-[140px]"
-                />
+                <div className="absolute left-4 top-4 right-4 flex gap-4">
+                    <img
+                        src={murziya}
+                        alt="cat"
+                        className="w-[140px]"
+                    />
+
+                    <CatSpeech text="Привет! Дильшат ағай попросил меня переделать дизайн главной страницы. И вот результат 😊" />
+                </div>
 
                 <div className="relative mt-40">
                     <WavyPath nodes={nodes} />
