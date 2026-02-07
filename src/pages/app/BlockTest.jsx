@@ -123,6 +123,35 @@ export default function BlockTest({
 
     /* ================= RENDERS ================= */
 
+    function getPairStyle({ selected, correct, wrong, baseBg }) {
+        if (correct) {
+            return {
+                backgroundColor: COLORS.brand.successBg,
+                border: `3px solid ${COLORS.brand.successBorder}`,
+            };
+        }
+
+        if (wrong) {
+            return {
+                backgroundColor: COLORS.brand.errorBg,
+                border: `3px solid ${COLORS.brand.errorBorder}`,
+            };
+        }
+
+        if (selected) {
+            return {
+                backgroundColor: COLORS.brand.selectBlueBg,
+                border: `2px solid ${COLORS.brand.selectBlueBorder}`,
+            };
+        }
+
+        return {
+            backgroundColor: baseBg,
+            border: "2px solid transparent",
+        };
+    }
+
+
     function renderSingleChoice() {
         return (
             <div className="mt-5 space-y-3">
@@ -134,42 +163,50 @@ export default function BlockTest({
                             key={it.key}
                             onClick={() => setSelectedKey(it.key)}
                             disabled={answerLocked}
-                            className={`
+                            className="
                             w-full
                             min-h-[64px]
                             flex items-center gap-4
                             px-4 py-3
                             rounded-full
-                            border-2
                             text-left
                             transition-all
-                            ${
-                                active
-                                    ? "border-blue-500 bg-blue-50"
-                                    : "border-black/20 bg-white"
-                            }
-                        `}
+                        "
+                            style={{
+                                backgroundColor: active
+                                    ? COLORS.brand.selectBlueBg
+                                    : COLORS.white,
+                                border: active
+                                    ? `2px solid ${COLORS.brand.selectBlueBorder}`
+                                    : "2px solid transparent",
+                            }}
                         >
                             {/* KEY (A / B / C / D) */}
                             <div
-                                className={`
+                                className="
                                 w-[36px] h-[36px]
                                 rounded-full
                                 flex items-center justify-center
                                 font-black
                                 shrink-0
-                                ${
-                                    active
-                                        ? "bg-blue-500 text-white"
-                                        : "bg-blue-100 text-black"
-                                }
-                            `}
+                            "
+                                style={{
+                                    backgroundColor: active
+                                        ? COLORS.brand.selectBlueBorder
+                                        : COLORS.brand.neutralBlueBg,
+                                    color: active
+                                        ? COLORS.white
+                                        : COLORS.black,
+                                }}
                             >
                                 {it.key}
                             </div>
 
                             {/* VALUE */}
-                            <div className="font-bold text-[15px] leading-snug">
+                            <div
+                                className="font-bold text-[15px] leading-snug"
+                                style={{ color: COLORS.text.dark }}
+                            >
                                 {it.value}
                             </div>
                         </button>
@@ -177,78 +214,134 @@ export default function BlockTest({
                 })}
 
                 {lastResult !== null && (
-                    <div className="text-center font-black mt-3">
+                    <div
+                        className="text-center font-black mt-3"
+                        style={{
+                            color: lastResult
+                                ? COLORS.brand.successBorder
+                                : COLORS.brand.errorBorder,
+                        }}
+                    >
                         {lastResult ? "✅ Правильно!" : "❌ Неправильно"}
                     </div>
                 )}
             </div>
         );
     }
+
 
     function renderTrueFalse() {
         return (
             <div className="mt-5 grid grid-cols-2 gap-3">
-                {question.items.map(it => (
-                    <button
-                        key={it.key}
-                        onClick={() => setSelectedKey(it.key)}
-                        disabled={answerLocked}
-                        className={`h-[60px] rounded-[24px] font-black
-                            ${selectedKey === it.key ? "bg-blue-200" : "bg-white"}
-                        `}
-                    >
-                        {it.value}
-                    </button>
-                ))}
+                {question.items.map((it) => {
+                    const active = selectedKey === it.key;
+
+                    return (
+                        <button
+                            key={it.key}
+                            onClick={() => setSelectedKey(it.key)}
+                            disabled={answerLocked}
+                            className="
+                            h-[64px]
+                            rounded-full
+                            flex items-center justify-center
+                            font-black
+                            transition-all
+                        "
+                            style={{
+                                backgroundColor: active
+                                    ? COLORS.brand.selectBlueBg
+                                    : COLORS.white,
+                                border: active
+                                    ? `2px solid ${COLORS.brand.selectBlueBorder}`
+                                    : "2px solid transparent",
+                                color: COLORS.text.dark,
+                            }}
+                        >
+                            {it.value}
+                        </button>
+                    );
+                })}
 
                 {lastResult !== null && (
-                    <div className="col-span-2 text-center font-black mt-3">
+                    <div
+                        className="col-span-2 text-center font-black mt-3"
+                        style={{
+                            color: lastResult
+                                ? COLORS.brand.successBorder
+                                : COLORS.brand.errorBorder,
+                        }}
+                    >
                         {lastResult ? "✅ Правильно!" : "❌ Неправильно"}
                     </div>
                 )}
             </div>
         );
     }
+
 
     function renderMatch() {
         const usedValues = Object.values(matchPairs);
 
         return (
             <div className="mt-5 space-y-4">
-                {question.items.map(it => {
+                {question.items.map((it) => {
                     const currentValue = matchPairs[it.key] || "";
+                    const isEmpty = !currentValue;
 
                     return (
-                        <div key={it.key} className="flex gap-3 items-center">
-                            {/* LEFT */}
-                            <div className="w-1/2 h-[56px] bg-blue-100 rounded-[18px] flex items-center justify-center font-black">
+                        <div
+                            key={it.key}
+                            className="flex gap-3 items-center"
+                        >
+                            {/* LEFT — KEY */}
+                            <div
+                                className="w-1/2 h-[56px] rounded-[18px] flex items-center justify-center font-black"
+                                style={{
+                                    backgroundColor: COLORS.brand.neutralBlueBg,
+                                    color: COLORS.text.dark,
+                                }}
+                            >
                                 {it.key}
                             </div>
 
-                            {/* RIGHT */}
+                            {/* RIGHT — SELECT */}
                             <select
-                                className={`w-1/2 h-[56px] rounded-[18px] px-3 font-bold
-                                    ${!currentValue
-                                    ? "border-2 border-dashed border-blue-400"
-                                    : "border"}
-                                `}
                                 value={currentValue}
                                 disabled={answerLocked}
-                                onChange={e =>
-                                    setMatchPairs(p => ({
+                                onChange={(e) =>
+                                    setMatchPairs((p) => ({
                                         ...p,
                                         [it.key]: e.target.value,
                                     }))
                                 }
+                                className="
+                                w-1/2 h-[56px]
+                                rounded-[18px]
+                                px-3
+                                font-bold
+                                transition-all
+                            "
+                                style={{
+                                    backgroundColor: COLORS.white,
+                                    border: isEmpty
+                                        ? `2px dashed ${COLORS.brand.selectBlueBorder}`
+                                        : `2px solid ${COLORS.brand.selectBlueBorder}`,
+                                    color: COLORS.text.dark,
+                                }}
                             >
-                                <option value="">Выберите значение</option>
+                                <option value="">
+                                    Выберите значение
+                                </option>
 
                                 {question.items
-                                    .map(o => o.value)
-                                    .filter(v =>
-                                        v === currentValue || !usedValues.includes(v)
+                                    .map((o) => o.value)
+                                    .filter(
+                                        (v) =>
+                                            v === currentValue ||
+                                            !usedValues.includes(v)
                                     )
-                                    .map(v => (
+                                    .map((v) => (
                                         <option key={v} value={v}>
                                             {v}
                                         </option>
@@ -259,7 +352,14 @@ export default function BlockTest({
                 })}
 
                 {lastResult !== null && (
-                    <div className="text-center font-black mt-3">
+                    <div
+                        className="text-center font-black mt-3"
+                        style={{
+                            color: lastResult
+                                ? COLORS.brand.successBorder
+                                : COLORS.brand.errorBorder,
+                        }}
+                    >
                         {lastResult ? "✅ Правильно!" : "❌ Неправильно"}
                     </div>
                 )}
@@ -284,30 +384,20 @@ export default function BlockTest({
                     {/* KEYS */}
                     <div className="flex-1 space-y-3">
                         {keys.map(k => {
-                            const isSelected = selectedKey === k;
-                            const isWrong = wrongPair?.key === k;
-                            const isCorrect = correctPair?.key === k;
+                            const style = getPairStyle({
+                                selected: selectedKey === k,
+                                correct: correctPair?.key === k,
+                                wrong: wrongPair?.key === k,
+                                baseBg: "#E6F0FF",
+                            });
 
                             return (
                                 <button
                                     key={k}
                                     onClick={() => setSelectedKey(k)}
                                     disabled={answerLocked || allDone}
-                                    className={`
-                                    w-full h-[56px]
-                                    rounded-[18px]
-                                    font-black
-                                    transition-all
-                                    ${
-                                        isCorrect
-                                            ? "bg-green-200 border-[3px] border-green-600"
-                                            : isWrong
-                                                ? "bg-red-200 border-[3px] border-red-600"
-                                                : isSelected
-                                                    ? "border-2 border-blue-500"
-                                                    : "bg-blue-100"
-                                    }
-                                `}
+                                    className="w-full h-[56px] rounded-[18px] font-black transition-all"
+                                    style={style}
                                 >
                                     {k}
                                 </button>
@@ -318,30 +408,20 @@ export default function BlockTest({
                     {/* VALUES */}
                     <div className="flex-1 space-y-3">
                         {values.map(v => {
-                            const isSelected = selectedValue === v;
-                            const isWrong = wrongPair?.value === v;
-                            const isCorrect = correctPair?.value === v;
+                            const style = getPairStyle({
+                                selected: selectedValue === v,
+                                correct: correctPair?.value === v,
+                                wrong: wrongPair?.value === v,
+                                baseBg: "#E8F7E6",
+                            });
 
                             return (
                                 <button
                                     key={v}
                                     onClick={() => setSelectedValue(v)}
                                     disabled={answerLocked || allDone}
-                                    className={`
-                                    w-full h-[56px]
-                                    rounded-[18px]
-                                    font-bold
-                                    transition-all
-                                    ${
-                                        isCorrect
-                                            ? "bg-green-200 border-[3px] border-green-600"
-                                            : isWrong
-                                                ? "bg-red-700 border-[3px] border-red-600"
-                                                : isSelected
-                                                    ? "border-2 border-blue-500"
-                                                    : "bg-green-100"
-                                    }
-                                `}
+                                    className="w-full h-[56px] rounded-[18px] font-bold transition-all"
+                                    style={style}
                                 >
                                     {v}
                                 </button>
@@ -352,7 +432,10 @@ export default function BlockTest({
 
                 {/* ✅ ВСЁ ПРАВИЛЬНО */}
                 {allDone && (
-                    <div className="mt-4 text-center font-black text-green-600 text-[18px]">
+                    <div
+                        className="mt-4 text-center font-black text-[18px]"
+                        style={{ color: COLORS.brand.successBorder }}
+                    >
                         ✅ Всё правильно!
                     </div>
                 )}

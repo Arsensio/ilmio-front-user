@@ -31,6 +31,18 @@ export const COLORS = {
         paw: "#FFE39B",
         subtitleYellow: "#FFE07A",
         greenActive: "#76D82D",
+
+        neutralBlueBg: "#E6F0FF",
+        neutralGreenBg: "#E8F7E6",
+
+        selectBlueBg: "#EAF2FF",
+        selectBlueBorder: "#2F7CC8",
+
+        successBg: "#DFF4D8",
+        successBorder: "#4EA61D",
+
+        errorBg: "#FCE2E2",
+        errorBorder: "#D32F2F",
     },
 
     auth: {
