@@ -21,8 +21,37 @@ export default function BlockTest({
     const [selectedValue, setSelectedValue] = useState(null);
     const [resolvedPairs, setResolvedPairs] = useState({});
     const [wrongPair, setWrongPair] = useState(null);
-
+    const [correctPair, setCorrectPair] = useState(null);
+    const [allDone, setAllDone] = useState(false);
     /* ================= RESET ON QUESTION ================= */
+
+    useEffect(() => {
+        if (!lastResult || question.type !== "MATCH_PROGRESSIVE") return;
+
+        const pair = lastResult.pair;
+
+        if (lastResult.ok) {
+            // подсветить выбранную пару ЗЕЛЁНЫМ
+            setCorrectPair(pair);
+
+            setTimeout(() => {
+                setResolvedPairs(p => ({ ...p, ...pair }));
+                setCorrectPair(null);
+            }, 600);
+        } else {
+            // подсветить выбранную пару КРАСНЫМ
+            setWrongPair(pair);
+            setTimeout(() => setWrongPair(null), 600);
+        }
+
+        // сброс выбора после показа результата
+        setTimeout(() => {
+            setSelectedKey(null);
+            setSelectedValue(null);
+        }, 600);
+    }, [lastResult, question.type]);
+
+
 
     useEffect(() => {
         setSelectedKey(null);
@@ -73,31 +102,24 @@ export default function BlockTest({
         });
     }, [selectedKey, selectedValue]);
 
-    useEffect(() => {
-        if (!lastResult || question.type !== "MATCH_PROGRESSIVE") return;
-
-        if (lastResult.ok) {
-            setResolvedPairs(p => ({ ...p, ...lastResult.pair }));
-        } else {
-            setWrongPair(lastResult.pair);
-            setTimeout(() => setWrongPair(null), 600);
-        }
-
-        setSelectedKey(null);
-        setSelectedValue(null);
-    }, [lastResult, question.type]);
 
     useEffect(() => {
         if (
-            question.type === "MATCH_PROGRESSIVE" &&
-            Object.keys(resolvedPairs).length === question.items.length
-        ) {
+            question.type !== "MATCH_PROGRESSIVE" ||
+            Object.keys(resolvedPairs).length !== question.items.length
+        ) return;
+
+        setAllDone(true);
+
+        // даём пользователю увидеть "Всё правильно"
+        setTimeout(() => {
             onChange({
                 type: "FINISH_PROGRESSIVE",
                 payload: resolvedPairs,
             });
-        }
-    }, [resolvedPairs]);
+        }, 700);
+    }, [resolvedPairs, question]);
+
 
     /* ================= RENDERS ================= */
 
@@ -248,42 +270,92 @@ export default function BlockTest({
     function renderMatchProgressive() {
         const usedValues = Object.values(resolvedPairs);
 
-        const keys = question.items.map(i => i.key).filter(k => !resolvedPairs[k]);
-        const values = question.items.map(i => i.value).filter(v => !usedValues.includes(v));
+        const keys = question.items
+            .map(i => i.key)
+            .filter(k => !resolvedPairs[k]);
+
+        const values = question.items
+            .map(i => i.value)
+            .filter(v => !usedValues.includes(v));
 
         return (
-            <div className="mt-5 flex gap-6">
-                <div className="flex-1 space-y-3">
-                    {keys.map(k => (
-                        <button
-                            key={k}
-                            onClick={() => setSelectedKey(k)}
-                            className={`w-full h-[56px] rounded-[18px] font-black
-                                ${wrongPair?.key === k
-                                ? "border-2 border-red-500"
-                                : "bg-blue-100"}
-                            `}
-                        >
-                            {k}
-                        </button>
-                    ))}
+            <div className="mt-5">
+                <div className="flex gap-6">
+                    {/* KEYS */}
+                    <div className="flex-1 space-y-3">
+                        {keys.map(k => {
+                            const isSelected = selectedKey === k;
+                            const isWrong = wrongPair?.key === k;
+                            const isCorrect = correctPair?.key === k;
+
+                            return (
+                                <button
+                                    key={k}
+                                    onClick={() => setSelectedKey(k)}
+                                    disabled={answerLocked || allDone}
+                                    className={`
+                                    w-full h-[56px]
+                                    rounded-[18px]
+                                    font-black
+                                    transition-all
+                                    ${
+                                        isCorrect
+                                            ? "bg-green-200 border-[3px] border-green-600"
+                                            : isWrong
+                                                ? "bg-red-200 border-[3px] border-red-600"
+                                                : isSelected
+                                                    ? "border-2 border-blue-500"
+                                                    : "bg-blue-100"
+                                    }
+                                `}
+                                >
+                                    {k}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {/* VALUES */}
+                    <div className="flex-1 space-y-3">
+                        {values.map(v => {
+                            const isSelected = selectedValue === v;
+                            const isWrong = wrongPair?.value === v;
+                            const isCorrect = correctPair?.value === v;
+
+                            return (
+                                <button
+                                    key={v}
+                                    onClick={() => setSelectedValue(v)}
+                                    disabled={answerLocked || allDone}
+                                    className={`
+                                    w-full h-[56px]
+                                    rounded-[18px]
+                                    font-bold
+                                    transition-all
+                                    ${
+                                        isCorrect
+                                            ? "bg-green-200 border-[3px] border-green-600"
+                                            : isWrong
+                                                ? "bg-red-700 border-[3px] border-red-600"
+                                                : isSelected
+                                                    ? "border-2 border-blue-500"
+                                                    : "bg-green-100"
+                                    }
+                                `}
+                                >
+                                    {v}
+                                </button>
+                            );
+                        })}
+                    </div>
                 </div>
 
-                <div className="flex-1 space-y-3">
-                    {values.map(v => (
-                        <button
-                            key={v}
-                            onClick={() => setSelectedValue(v)}
-                            className={`w-full h-[56px] rounded-[18px] font-bold
-                                ${wrongPair?.value === v
-                                ? "border-2 border-red-500"
-                                : "bg-green-100"}
-                            `}
-                        >
-                            {v}
-                        </button>
-                    ))}
-                </div>
+                {/* ✅ ВСЁ ПРАВИЛЬНО */}
+                {allDone && (
+                    <div className="mt-4 text-center font-black text-green-600 text-[18px]">
+                        ✅ Всё правильно!
+                    </div>
+                )}
             </div>
         );
     }
