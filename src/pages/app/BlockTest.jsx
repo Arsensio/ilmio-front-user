@@ -1,13 +1,6 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { COLORS } from "../../theme/colors";
 import muizzaLike from "../../assets/images/muizza_think.png";
-
-/*
-  BlockTest — ТОЛЬКО UI
-  ❌ нет кнопки
-  ❌ нет sendTestAnswer
-  ✅ отдает payload наверх
-*/
 
 export default function BlockTest({
                                       question,
@@ -15,56 +8,45 @@ export default function BlockTest({
                                       lastResult,
                                       onChange,
                                   }) {
+    /* ================= COMMON ================= */
+
     const [selectedKey, setSelectedKey] = useState(null);
+
+    /* ================= MATCH ================= */
+
     const [matchPairs, setMatchPairs] = useState({});
 
-    /* ---------- AVAILABLE OPTIONS (MATCH) ---------- */
+    /* ================= MATCH_PROGRESSIVE ================= */
 
-    const availableOptions = useMemo(() => {
-        if (question.type !== "MATCH") return [];
+    const [selectedValue, setSelectedValue] = useState(null);
+    const [resolvedPairs, setResolvedPairs] = useState({});
+    const [wrongPair, setWrongPair] = useState(null);
 
-        const usedValues = Object.values(matchPairs);
-        return question.items.filter(
-            (it) => !usedValues.includes(it.value)
-        );
-    }, [question, matchPairs]);
-
-    /* ---------- MATCH ---------- */
-
-    function handleSelect(leftKey, value) {
-        if (answerLocked) return;
-
-        setMatchPairs((prev) => {
-            const next = { ...prev };
-
-            // убираем value, если оно уже использовалось
-            Object.keys(next).forEach((k) => {
-                if (next[k] === value) delete next[k];
-            });
-
-            if (value) next[leftKey] = value;
-            else delete next[leftKey];
-
-            return next;
-        });
-    }
-
-    /* ---------- SYNC WITH PARENT ---------- */
+    /* ================= RESET ON QUESTION ================= */
 
     useEffect(() => {
+        setSelectedKey(null);
+        setSelectedValue(null);
+        setMatchPairs({});
+        setResolvedPairs({});
+        setWrongPair(null);
+    }, [question.id]);
+
+    /* ================= OLD FLOW ================= */
+
+    useEffect(() => {
+        if (question.type === "MATCH_PROGRESSIVE") return;
+
         if (question.type === "MATCH") {
             onChange({
-                ready:
-                    Object.keys(matchPairs).length === question.items.length,
+                ready: Object.keys(matchPairs).length === question.items.length,
                 payload: matchPairs,
             });
             return;
         }
 
         if (selectedKey) {
-            const item = question.items.find(
-                (i) => i.key === selectedKey
-            );
+            const item = question.items.find(i => i.key === selectedKey);
             if (item) {
                 onChange({
                     ready: true,
@@ -76,7 +58,48 @@ export default function BlockTest({
         }
     }, [selectedKey, matchPairs, question, onChange]);
 
-    /* ---------- RENDERS ---------- */
+    /* ================= MATCH_PROGRESSIVE ================= */
+
+    useEffect(() => {
+        if (
+            question.type !== "MATCH_PROGRESSIVE" ||
+            !selectedKey ||
+            !selectedValue
+        ) return;
+
+        onChange({
+            type: "CHECK_PAIR",
+            payload: { [selectedKey]: selectedValue },
+        });
+    }, [selectedKey, selectedValue]);
+
+    useEffect(() => {
+        if (!lastResult || question.type !== "MATCH_PROGRESSIVE") return;
+
+        if (lastResult.ok) {
+            setResolvedPairs(p => ({ ...p, ...lastResult.pair }));
+        } else {
+            setWrongPair(lastResult.pair);
+            setTimeout(() => setWrongPair(null), 600);
+        }
+
+        setSelectedKey(null);
+        setSelectedValue(null);
+    }, [lastResult, question.type]);
+
+    useEffect(() => {
+        if (
+            question.type === "MATCH_PROGRESSIVE" &&
+            Object.keys(resolvedPairs).length === question.items.length
+        ) {
+            onChange({
+                type: "FINISH_PROGRESSIVE",
+                payload: resolvedPairs,
+            });
+        }
+    }, [resolvedPairs]);
+
+    /* ================= RENDERS ================= */
 
     function renderSingleChoice() {
         return (
@@ -89,23 +112,53 @@ export default function BlockTest({
                             key={it.key}
                             onClick={() => setSelectedKey(it.key)}
                             disabled={answerLocked}
-                            className="w-full text-left rounded-[22px] px-4 py-4 font-extrabold border flex items-center gap-3"
-                            style={{
-                                background: active
-                                    ? "rgba(47,124,200,0.12)"
-                                    : "rgba(255,255,255,0.75)",
-                                borderColor: active
-                                    ? "#2F7CC8"
-                                    : "rgba(255,255,255,0.7)",
-                            }}
+                            className={`
+                            w-full
+                            min-h-[64px]
+                            flex items-center gap-4
+                            px-4 py-3
+                            rounded-full
+                            border-2
+                            text-left
+                            transition-all
+                            ${
+                                active
+                                    ? "border-blue-500 bg-blue-50"
+                                    : "border-black/20 bg-white"
+                            }
+                        `}
                         >
-                            <div className="w-[36px] h-[36px] rounded-full bg-blue-100 flex items-center justify-center font-black">
+                            {/* KEY (A / B / C / D) */}
+                            <div
+                                className={`
+                                w-[36px] h-[36px]
+                                rounded-full
+                                flex items-center justify-center
+                                font-black
+                                shrink-0
+                                ${
+                                    active
+                                        ? "bg-blue-500 text-white"
+                                        : "bg-blue-100 text-black"
+                                }
+                            `}
+                            >
                                 {it.key}
                             </div>
-                            {it.value}
+
+                            {/* VALUE */}
+                            <div className="font-bold text-[15px] leading-snug">
+                                {it.value}
+                            </div>
                         </button>
                     );
                 })}
+
+                {lastResult !== null && (
+                    <div className="text-center font-black mt-3">
+                        {lastResult ? "✅ Правильно!" : "❌ Неправильно"}
+                    </div>
+                )}
             </div>
         );
     }
@@ -113,129 +166,148 @@ export default function BlockTest({
     function renderTrueFalse() {
         return (
             <div className="mt-5 grid grid-cols-2 gap-3">
-                {question.items.map((it) => {
-                    const active = selectedKey === it.key;
+                {question.items.map(it => (
+                    <button
+                        key={it.key}
+                        onClick={() => setSelectedKey(it.key)}
+                        disabled={answerLocked}
+                        className={`h-[60px] rounded-[24px] font-black
+                            ${selectedKey === it.key ? "bg-blue-200" : "bg-white"}
+                        `}
+                    >
+                        {it.value}
+                    </button>
+                ))}
 
-                    return (
-                        <button
-                            key={it.key}
-                            onClick={() => setSelectedKey(it.key)}
-                            disabled={answerLocked}
-                            className="rounded-[24px] px-4 py-5 font-black"
-                            style={{
-                                background: active
-                                    ? "rgba(56,189,248,0.18)"
-                                    : "rgba(255,255,255,0.78)",
-                            }}
-                        >
-                            {it.value}
-                        </button>
-                    );
-                })}
+                {lastResult !== null && (
+                    <div className="col-span-2 text-center font-black mt-3">
+                        {lastResult ? "✅ Правильно!" : "❌ Неправильно"}
+                    </div>
+                )}
             </div>
         );
     }
 
     function renderMatch() {
+        const usedValues = Object.values(matchPairs);
+
         return (
             <div className="mt-5 space-y-4">
-                {question.items.map((it) => {
-                    const selectedValue = matchPairs[it.key] || "";
+                {question.items.map(it => {
+                    const currentValue = matchPairs[it.key] || "";
 
                     return (
-                        <div
-                            key={it.key}
-                            className="flex gap-3 items-center"
-                        >
-                            {/* LEFT — KEY (50%) */}
-                            <div className="w-1/2 h-[56px] rounded-[18px] bg-blue-100 flex items-center justify-center font-black text-center px-2">
+                        <div key={it.key} className="flex gap-3 items-center">
+                            {/* LEFT */}
+                            <div className="w-1/2 h-[56px] bg-blue-100 rounded-[18px] flex items-center justify-center font-black">
                                 {it.key}
                             </div>
 
-                            {/* RIGHT — SELECT (50%) */}
+                            {/* RIGHT */}
                             <select
-                                value={selectedValue}
+                                className={`w-1/2 h-[56px] rounded-[18px] px-3 font-bold
+                                    ${!currentValue
+                                    ? "border-2 border-dashed border-blue-400"
+                                    : "border"}
+                                `}
+                                value={currentValue}
                                 disabled={answerLocked}
-                                onChange={(e) =>
-                                    handleSelect(it.key, e.target.value)
+                                onChange={e =>
+                                    setMatchPairs(p => ({
+                                        ...p,
+                                        [it.key]: e.target.value,
+                                    }))
                                 }
-                                className="w-1/2 h-[56px] rounded-[18px] border px-4 font-bold bg-white"
                             >
-                                <option value="">
-                                    Выберите значение
-                                </option>
+                                <option value="">Выберите значение</option>
 
-                                {selectedValue && (
-                                    <option value={selectedValue}>
-                                        {selectedValue}
-                                    </option>
-                                )}
-
-                                {availableOptions.map((opt) => (
-                                    <option
-                                        key={opt.key}
-                                        value={opt.value}
-                                    >
-                                        {opt.value}
-                                    </option>
-                                ))}
+                                {question.items
+                                    .map(o => o.value)
+                                    .filter(v =>
+                                        v === currentValue || !usedValues.includes(v)
+                                    )
+                                    .map(v => (
+                                        <option key={v} value={v}>
+                                            {v}
+                                        </option>
+                                    ))}
                             </select>
                         </div>
                     );
                 })}
+
+                {lastResult !== null && (
+                    <div className="text-center font-black mt-3">
+                        {lastResult ? "✅ Правильно!" : "❌ Неправильно"}
+                    </div>
+                )}
             </div>
         );
     }
 
-    /* ---------- UI ---------- */
+    function renderMatchProgressive() {
+        const usedValues = Object.values(resolvedPairs);
+
+        const keys = question.items.map(i => i.key).filter(k => !resolvedPairs[k]);
+        const values = question.items.map(i => i.value).filter(v => !usedValues.includes(v));
+
+        return (
+            <div className="mt-5 flex gap-6">
+                <div className="flex-1 space-y-3">
+                    {keys.map(k => (
+                        <button
+                            key={k}
+                            onClick={() => setSelectedKey(k)}
+                            className={`w-full h-[56px] rounded-[18px] font-black
+                                ${wrongPair?.key === k
+                                ? "border-2 border-red-500"
+                                : "bg-blue-100"}
+                            `}
+                        >
+                            {k}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="flex-1 space-y-3">
+                    {values.map(v => (
+                        <button
+                            key={v}
+                            onClick={() => setSelectedValue(v)}
+                            className={`w-full h-[56px] rounded-[18px] font-bold
+                                ${wrongPair?.value === v
+                                ? "border-2 border-red-500"
+                                : "bg-green-100"}
+                            `}
+                        >
+                            {v}
+                        </button>
+                    ))}
+                </div>
+            </div>
+        );
+    }
+
+    /* ================= UI ================= */
 
     return (
         <div className="relative">
-            {/* CAT */}
-            <div className="flex justify-center mb-[-7px] pointer-events-none">
+            <div className="flex justify-center mb-[-8px]">
                 <img src={muizzaLike} className="w-[180px]" />
             </div>
 
-            <div className="rounded-[34px] bg-white px-6 py-6 shadow-xl">
-                {/* MEDIA IMAGE FROM BACK */}
-                {question.mediaUrl && (
-                    <div className="mb-4 flex justify-center">
-                        <img
-                            src={question.mediaUrl}
-                            alt="question media"
-                            className="
-                    max-h-[180px]
-                    w-full
-                    object-contain
-                    rounded-[18px]
-                    shadow-[0_10px_30px_rgba(0,0,0,0.12)]
-                "
-                            onError={(e) => {
-                                e.currentTarget.style.display = "none";
-                            }}
-                        />
-                    </div>
-                )}
-
-                {/* QUESTION TEXT */}
+            <div className="bg-white rounded-[34px] px-6 py-6 shadow-xl">
                 <div
-                    className="text-[22px] font-black mb-3"
+                    className="text-[22px] font-black mb-4"
                     style={{ color: COLORS.brand.titleBlue }}
                 >
                     {question.text}
                 </div>
 
-
-
                 {question.type === "SINGLE_CHOICE" && renderSingleChoice()}
                 {question.type === "TRUE_FALSE" && renderTrueFalse()}
                 {question.type === "MATCH" && renderMatch()}
-
-                {lastResult !== null && (
-                    <div className="mt-4 font-black text-center">
-                        {lastResult ? "✅ Правильно!" : "❌ Неправильно"}
-                    </div>
-                )}
+                {question.type === "MATCH_PROGRESSIVE" && renderMatchProgressive()}
             </div>
         </div>
     );

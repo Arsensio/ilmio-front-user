@@ -11,6 +11,7 @@ import {
 import {
     getRandomLessonBlockQuestion,
     sendTestAnswer,
+    checkPair,
 } from "../../api/user/testsApi";
 
 import LessonLayout from "../../layouts/LessonLayout";
@@ -82,9 +83,10 @@ export default function LessonMobile() {
     const [lastResult, setLastResult] = useState(null);
     const [testPayload, setTestPayload] = useState(null);
     const [testReady, setTestReady] = useState(false);
-    const [isClosing, setIsClosing] = useState(false);
-
     /* ---------- LOAD LESSON ---------- */
+
+    const [progressiveResult, setProgressiveResult] = useState(null);
+    const [finalPairs, setFinalPairs] = useState({});
 
     useEffect(() => {
         (async () => {
@@ -141,6 +143,58 @@ export default function LessonMobile() {
             setLoading(false);
         }
     }
+
+    function handleTestEvent(event) {
+        // ===== MATCH_PROGRESSIVE =====
+        if (event?.type === "CHECK_PAIR") {
+            checkProgressivePair(event.payload);
+            return;
+        }
+
+        if (event?.type === "FINISH_PROGRESSIVE") {
+            submitFinalAnswer(event.payload);
+            return;
+        }
+
+        // ===== OLD FLOW =====
+        if ("ready" in event) {
+            setTestReady(event.ready);
+            setTestPayload(event.payload);
+        }
+    }
+
+
+    async function submitFinalAnswer(pairs) {
+        await sendTestAnswer({
+            questionId: question.id,
+            selectedPairs: pairs,
+        });
+
+        setMode("CONTENT");
+        setStep(s => s + 1);
+    }
+
+
+    async function checkProgressivePair(pair) {
+        try {
+            setAnswerLocked(true);
+
+            const ok = await checkPair({
+                questionId: question.id,
+                selectedPairs: pair,
+            });
+
+            if (ok) {
+                setFinalPairs(prev => ({ ...prev, ...pair }));
+                setProgressiveResult({ ok: true, pair });
+            } else {
+                setProgressiveResult({ ok: false, pair });
+            }
+        } finally {
+            setAnswerLocked(false);
+        }
+    }
+
 
     async function submitTestAnswer() {
         if (!testReady || !testPayload) return;
@@ -274,11 +328,12 @@ export default function LessonMobile() {
                             <BlockTest
                                 question={question}
                                 answerLocked={answerLocked}
-                                lastResult={lastResult}
-                                onChange={({ready, payload}) => {
-                                    setTestReady(ready);
-                                    setTestPayload(payload);
-                                }}
+                                lastResult={
+                                    question.type === "MATCH_PROGRESSIVE"
+                                        ? progressiveResult
+                                        : lastResult
+                                }
+                                onChange={handleTestEvent}
                             />
                         )}
 

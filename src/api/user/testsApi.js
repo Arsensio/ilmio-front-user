@@ -17,6 +17,15 @@ export async function sendTestAnswer({questionId, selectedPairs}) {
     return res.data;
 }
 
+export async function checkPair({questionId, selectedPairs}) {
+    const res = await httpClient.post(`/api/user/test/check`, {
+        questionId,
+        selectedPairs,
+    });
+
+    return res.data;
+}
+
 export async function getRandomLessonBlockQuestion(blockId) {
     try {
         const res = await httpClient.get(
