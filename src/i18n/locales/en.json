@@ -82,17 +82,19 @@
     "loading": "Loading lesson",
     "error": "Error",
     "loadFailed": "Failed to load lesson 😿",
-
     "introTitle": "Lesson #{{number}}",
     "blockTitle": "Step {{number}}",
-
     "next": "Next",
-
     "finishTitle": "Lesson completed",
     "finishCongrats": "You successfully completed today’s lesson!",
     "finishLessonName": "Lesson name:",
     "finishGoHome": "Go home",
 
-    "startTest": "Start test"
+    "test": {
+      "selectValue": "Select a value",
+      "correct": "✅ Correct!",
+      "wrong": "❌ Incorrect",
+      "allCorrect": "✅ All correct!"
+    }
   }
 }

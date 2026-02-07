@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { COLORS } from "../../theme/colors";
 import muizzaLike from "../../assets/images/muizza_think.png";
+import { useTranslation } from "react-i18next";
+import {t} from "i18next";
 
 export default function BlockTest({
                                       question,
@@ -222,7 +224,9 @@ export default function BlockTest({
                                 : COLORS.brand.errorBorder,
                         }}
                     >
-                        {lastResult ? "✅ Правильно!" : "❌ Неправильно"}
+                        {lastResult
+                            ? t("lesson.test.correct")
+                            : t("lesson.test.wrong")}
                     </div>
                 )}
             </div>
@@ -272,7 +276,9 @@ export default function BlockTest({
                                 : COLORS.brand.errorBorder,
                         }}
                     >
-                        {lastResult ? "✅ Правильно!" : "❌ Неправильно"}
+                        {lastResult
+                            ? t("lesson.test.correct")
+                            : t("lesson.test.wrong")}
                     </div>
                 )}
             </div>
@@ -331,7 +337,7 @@ export default function BlockTest({
                                 }}
                             >
                                 <option value="">
-                                    Выберите значение
+                                    {t("lesson.test.selectValue")}
                                 </option>
 
                                 {question.items
@@ -360,7 +366,9 @@ export default function BlockTest({
                                 : COLORS.brand.errorBorder,
                         }}
                     >
-                        {lastResult ? "✅ Правильно!" : "❌ Неправильно"}
+                        {lastResult
+                            ? t("lesson.test.correct")
+                            : t("lesson.test.wrong")}
                     </div>
                 )}
             </div>
@@ -436,7 +444,7 @@ export default function BlockTest({
                         className="mt-4 text-center font-black text-[18px]"
                         style={{ color: COLORS.brand.successBorder }}
                     >
-                        ✅ Всё правильно!
+                        {t("lesson.test.allCorrect")}
                     </div>
                 )}
             </div>

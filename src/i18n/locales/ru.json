@@ -100,6 +100,11 @@
     "finishLessonName": "Название урока:",
     "finishGoHome": "На главную",
 
-    "startTest": "Начать тест"
+    "test": {
+      "selectValue": "Выберите значение",
+      "correct": "✅ Правильно!",
+      "wrong": "❌ Неправильно",
+      "allCorrect": "✅ Всё правильно!"
+    }
   }
 }
